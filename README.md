@@ -18,19 +18,19 @@
 
 ## 📥 Installation
 
-### 1. Cloner ou télécharger le projet
+#### 1. Cloner ou télécharger le projet
 ```bash
 git clone https://github.com/KOIexe86/Biscotte_Assistant.git
 cd AssistantVocal
 ```
 ### > Remarque : le fichier `Start.bat` automatise les étapes suivante sur Windows.
-### 2. Ouvrir un terminal à la racine du projet.
-### 3. Créer et activer un environnement virtuel :
+#### 2. Ouvrir un terminal à la racine du projet.
+#### 3. Créer et activer un environnement virtuel :
 ```bash
 python -m venv venv
 venv\Scripts\activate
 ```
-### 4. Mettre à jour pip et installer les dépendances :
+#### 4. Mettre à jour pip et installer les dépendances :
 ```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt
@@ -106,6 +106,7 @@ Les sites et programmes sont configurables dans le fichier AssistantVocal.py.
 
 👨‍💻 Auteur : KOIexe
 📅 Date : 16/10/2025
+
 
 
 
