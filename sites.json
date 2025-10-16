@@ -1,8 +1,15 @@
 {
     "google": "https://www.google.com",
     "youtube": "https://www.youtube.com",
-    "musique": "https://www.deezer.com/fr/profile/6289050543/loved",
-    "dashboard": "http://dash.koiexe.fr",
-    "les mail": "https://mail.google.com/mail/u/0/#inbox"
-
+    "musique": "https://www.deezer.com/",
+    "les mail": "https://mail.google.com/mail/u/0/#inbox",
+    "google maps": "https://www.google.com/maps",
+    "traduction": "https://translate.google.com",
+    "calendrier": "https://calendar.google.com",
+    "wikipedia": "https://fr.wikipedia.org",
+    "netflix": "https://www.netflix.com",
+    "twitch": "https://www.twitch.tv",
+    "x": "https://x.com",
+    "reddit": "https://www.reddit.com",
+    "amazon": "https://www.amazon.fr"
 }
