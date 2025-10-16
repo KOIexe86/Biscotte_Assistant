@@ -1,93 +1,111 @@
 # 🎙️ Assistant Vocal (Python)
 
-Un assistant vocal simple en **Python** utilisant :
-- [Vosk](https://alphacephei.com/vosk/) pour la **reconnaissance vocale** (hors ligne),
-- [edge-tts](https://github.com/rany2/edge-tts) pour la **synthèse vocale** (voix Microsoft Edge),
-- et des commandes personnalisées pour ouvrir des sites ou lancer des programmes.
+## Fonctionnalités
+- Reconnaissance vocale hors-ligne [Vosk](https://alphacephei.com/vosk/)
+- Synthèse vocale [edge-tts](https://github.com/rany2/edge-tts)
+- Commandes pour ouvrir des sites, lancer des programmes, obtenir l'heure, météo, rappels, etc.
+- Configuration via `config.py`, `programmes.json` et `sites.json`
 
 ---
 
-## 📂 Structure du projet
-AssistantVocal/  
-  ├── vosk-model-small-fr-0.22/\
-  ├── AssistantVocal.py\
-  ├── requirements.txt\
-  ├── Start.bat\
-  ├── README.md\
-  ├── Oui.mp3\
-  ├── Bonjour.mp3\
-  ├── Pas_compris.mp3\
-  └── Au_revoir.mp3\
+## ❗ Prérequis
+- Windows
+- Python 3.8+
+- FFmpeg (utilisé par imageio-ffmpeg)
+- Modèle Vosk pour le français (petit ou grand)
 
 ---
 
-## ⚙️ Installation
+## 📥 Installation
 
 ### 1. Cloner ou télécharger le projet
 ```bash
-git clone https://github.com/TON_GITHUB/AssistantVocal.git
+git clone https://github.com/KOIexe86/Biscotte_Assistant.git
 cd AssistantVocal
 ```
-
-### 2. Créer et activer un environnement virtuel (recommandé)
+### > Remarque : le fichier `Start.bat` automatise les étapes suivante sur Windows.
+### 2. Ouvrir un terminal à la racine du projet.
+### 3. Créer et activer un environnement virtuel :
 ```bash
 python -m venv venv
 venv\Scripts\activate
 ```
-
-### 3. Installer les dépendances
+### 4. Mettre à jour pip et installer les dépendances :
 ```bash
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
-⚠️ Vérifie que requirements.txt contient bien la dernière version de edge-tts (ex. edge-tts==7.2.3).
+
+---
+
+## ⬇️ Téléchargement du modèle Vosk
+### 1. Aller sur https://alphacephei.com/vosk/models
+### 2. Télécharger un modèle français (ex. `vosk-model-small-fr-0.22` ou `vosk-model-fr-0.22`)
+### 3. Décompresser le dossier du modèle à la racine du projet (même dossier que `AssistantVocal.py`).
+
+---
+
+## ⚙️ Configuration
+- `config.py` :
+  - NAME : mot d'activation (par défaut "biscotte")
+  - VOICE : voix edge-tts (ex. `"fr-FR-RemyMultilingualNeural"`)
+  - SMALL_MODEL_PATH / BIG_MODEL_PATH : noms des dossiers de modèle Vosk
+- `programmes.json` : chemins des exécutables pour la commande "lance"
+- `sites.json` : URLs pour la commande "ouvre"
 
 ---
 
 ## ▶️ Utilisation
 Deux façons de lancer le projet :
 
-### 1. Avec le script Python
-```bash
-python AssistantVocal.py
-```
-### 2. Avec le script Windows (start.bat)
+### 1. Avec le script start.bat (recommander)
 Double-clique simplement sur start.bat, qui :
 * active l’environnement virtuel,
 * installe automatiquement les dépendances manquantes,
 * lance l’assistant.
 
+### 2. Avec le script Python
+```bash
+python AssistantVocal.py
+```
+### 3. Au démarrage, choisir le modèle petit (p) ou grand (g).
+### 4. Dire le mot d'activation (ex. "biscotte") pour activer l'assistant, puis prononcer une commande.
+
 ---
 
 ## 🎤 Commandes vocales
 Active l’assistant en disant "Biscotte", puis donne une commande :
-* stop → Ferme le programme
-* ouvre [site] → Exemple : "ouvre YouTube"
-* lance [programme] → Exemple : "lance VLC"
-* non → Met l’assistant en veille
+* ouvrez/ouvre <site> — ouvre un site enregistré
+* lance <programme> — ouvre un programme référencé
+* cherche / chercher <terme> — recherche sur le web
+* heure — donne l'heure
+* météo — récupère la météo (si module configuré)
+* rappel — ajoute un rappel
+* stop — demande d'arrêt (confirmer par "oui")
 
 Les sites et programmes sont configurables dans le fichier AssistantVocal.py.
 
 ---
 
-## 🛠️ Dépendances principales
-* Python ≥ 3.12
-* Vosk
-* edge-tts
-* sounddevice
-* playsound3
+## 🛠️ Dépannage
+- "FFmpeg introuvable via imageio-ffmpeg" :
+  Installer FFmpeg ou vérifier que imageio-ffmpeg a accès à l'exécutable.
+- "Veuillez télécharger le modèle..." :
+  Vérifier que le dossier du modèle est bien présent et son nom correspond à `config.py`.
+- Problèmes de micro :
+  Vérifier les permissions et le périphérique audio par défaut.
+- Si des modules manquent, réinstaller les dépendances depuis `requirements.txt`.
 
 ---
 
-## 🚀 Améliorations possibles
-* Ajouter plus de commandes personnalisées
-* Gérer plusieurs langues
-* Intégrer une interface graphique
-* Utiliser un hotword detector plus robuste (Snowboy, Porcupine, etc.)
+## Contribuer
+- Modifier les fichiers sous `modules/` pour ajouter des fonctionnalités.
+- Mettre à jour `programmes.json` et `sites.json` pour personnaliser les actions.
 
 ---
 
 👨‍💻 Auteur : KOIexe
-📅 Date : 15/09/2025
+📅 Date : 16/10/2025
 
 
 
