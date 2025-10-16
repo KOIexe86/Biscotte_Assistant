@@ -3,7 +3,6 @@ edge-tts==7.2.3
 playsound3==2.2.2
 sounddevice==0.5.1
 imageio-ffmpeg==0.4.9
-requests
-psutil
-
-fermer et vidéo et easter egg
+requests==2.31.0
+psutil==5.9.5
+numpy>=1.24
