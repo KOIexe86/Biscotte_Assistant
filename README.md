@@ -18,14 +18,14 @@
 
 ## 📥 Installation
 
-#### 1. Cloner ou télécharger le projet
+- 1. Cloner ou télécharger le projet
 ```bash
 git clone https://github.com/KOIexe86/Biscotte_Assistant.git
 cd AssistantVocal
 ```
 ### > Remarque : le fichier `Start.bat` automatise les étapes suivante sur Windows.
-#### 2. Ouvrir un terminal à la racine du projet.
-#### 3. Créer et activer un environnement virtuel :
+- 2. Ouvrir un terminal à la racine du projet.
+- 3. Créer et activer un environnement virtuel :
 ```bash
 python -m venv venv
 venv\Scripts\activate
@@ -39,9 +39,9 @@ pip install -r requirements.txt
 ---
 
 ## ⬇️ Téléchargement du modèle Vosk
-### 1. Aller sur https://alphacephei.com/vosk/models
-### 2. Télécharger un modèle français (ex. `vosk-model-small-fr-0.22` ou `vosk-model-fr-0.22`)
-### 3. Décompresser le dossier du modèle à la racine du projet (même dossier que `AssistantVocal.py`).
+- 1. Aller sur https://alphacephei.com/vosk/models
+- 2. Télécharger un modèle français (ex. `vosk-model-small-fr-0.22` ou `vosk-model-fr-0.22`)
+- 3. Décompresser le dossier du modèle à la racine du projet (même dossier que `AssistantVocal.py`).
 
 ---
 
@@ -106,6 +106,7 @@ Les sites et programmes sont configurables dans le fichier AssistantVocal.py.
 
 👨‍💻 Auteur : KOIexe
 📅 Date : 16/10/2025
+
 
 
 
