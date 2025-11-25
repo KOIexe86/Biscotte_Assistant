@@ -16,7 +16,6 @@ from modules.mod_utils import dire, texte_en_nombre
 import datetime
 import time
 import threading
-from win11toast import toast
 
 
 # --------------------------
@@ -102,14 +101,6 @@ def verifier_rappels():
             # Verifie tout les rappels dans list_rappels
             for rappel in list_rappels[:]:  # Copie pour éviter les erreurs
                 if maintenant >= rappel["heure"]:
-                    # Envoie un toast
-                    notif_thread = threading.Thread(
-                        target=toast,
-                        args=(rappel['nom'], 'Le rappel est passer',),
-                        kwargs={'audio': 'ms-winsoundevent:Notification.Reminder'}
-                    )
-                    notif_thread.start
-
                     # Dit le rappel
                     dire(f"Rappel : {rappel['nom']}")
 

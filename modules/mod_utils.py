@@ -15,9 +15,12 @@ import asyncio
 import edge_tts
 from playsound3 import playsound
 import os
-from config import VOICE, Debug
+from config import VOICE, Debug, TEXTMODE
 import threading
 from win11toast import toast
+from rich import print
+from rich.prompt import Prompt
+
 
 # --------------------------
 #         Variables
@@ -85,4 +88,7 @@ async def tts_play(Texte):              # Fonction asynchrone pour la synthèse 
 
 
 def dire(Texte):                     # Fonction simplifier pour exécuter la synthèse vocale
-    asyncio.run(tts_play(Texte))
+    if TEXTMODE:
+        print("[green]Biscotte:", Texte)
+    else:
+        asyncio.run(tts_play(Texte))

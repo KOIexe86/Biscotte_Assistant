@@ -106,9 +106,3 @@ Les sites et programmes sont configurables dans le fichier AssistantVocal.py.
 
 👨‍💻 Auteur : KOIexe
 📅 Date : 16/10/2025
-
-
-
-
-
-

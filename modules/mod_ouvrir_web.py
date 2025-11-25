@@ -46,3 +46,4 @@ def ouvrir_web(text):
 
                     if Debug:
                         print(f"Impossible d'ouvrir {site}: {e}")
+                break

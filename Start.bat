@@ -1,10 +1,9 @@
 @echo off
-title Assistant Vocal - KOIexe
-color 0a
+title Biscotte - Assistant Vocal - KOIexe
 
-echo ==================================================
-echo          Assistant Vocal - KOIexe
-echo ==================================================
+echo ===================================================
+echo          Biscotte Assistant Vocal - KOIexe
+echo ===================================================
 echo.
 
 :: Vérification de l'environnement virtuel

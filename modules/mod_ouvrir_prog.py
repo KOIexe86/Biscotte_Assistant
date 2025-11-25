@@ -45,3 +45,4 @@ def ouvrir_prog(text):
 
                     if Debug:
                         print(f"Impossible de lancer {programme}: {e}")
+                break

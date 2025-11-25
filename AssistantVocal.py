@@ -27,6 +27,8 @@ import json
 from vosk import Model, KaldiRecognizer
 import imageio_ffmpeg as ffmpeg
 import random
+from rich import print
+from rich.prompt import Prompt
 
 
 # --------------------------
@@ -41,6 +43,7 @@ from modules.mod_ouvrir_prog import ouvrir_prog
 from modules.mod_web_search import web_search
 from modules.mod_heure import get_heure, ajout_rappel, verifier_rappels
 from modules.mod_status import status
+from modules.mod_googleAI import askAI
 
 
 # --------------------------
@@ -78,32 +81,6 @@ else:
     if Debug:
         print(f"FFmpeg trouvé: {FFMPEG_PATH}")
 
-
-# --------------------------
-#  Initialisation du model
-# --------------------------
-
-#Choix du modèle
-ask = input("Utiliser le modèle petit (p) ou grand (g) ? (p/g): ").lower()
-if ask == "p":
-    MODEL_PATH = config.SMALL_MODEL_PATH
-elif ask == "g":
-    MODEL_PATH = config.BIG_MODEL_PATH
-else:
-    print("Choix invalide, utilisation du modèle par défaut (petit).")
-    MODEL_PATH = "vosk-model-small-fr-0.22"
-    ask = "p"
-
-# Vérification de l'existence du modèle
-if not os.path.exists(MODEL_PATH):
-    print ("Veuillez télécharger le modèle depuis https://alphacephei.com/vosk/models et le décompresser dans le dossier courant.")
-    exit(1)
-
-if Debug:
-    print(f"Chargement du modèle {ask} ...")
-
-model = Model(MODEL_PATH)
-recognizer = KaldiRecognizer(model, SAMPLE_RATE)    #Initialisation du reconnaisseur
 
 # --------------------------
 #         Commandes
@@ -154,10 +131,15 @@ def detectcommande():               # Fonction pour détecter les commandes dans
             if Debug:
                 print(f'Commande détécter: "{i}" son ID est {commandeID}')
     if commandeID == -1:
-        playsound("sons\\Pas_compris.mp3")
-        assistant_actif = True
-        if Debug:
-            print(f"Aucune commande trouvé dans {text}, assistant réactivé")
+        if config.AI:
+            # Utiliser l'IA pour répondre si aucune commande n'est trouvée
+            askAI(text)
+        else:
+             # Joue le son Pas_compris.mp3 pour signaler que la commande n'a pas été comprise
+            playsound("sons\\Pas_compris.mp3")
+            assistant_actif = True
+            if Debug:
+                print(f"Aucune commande trouvé dans {text}, assistant réactivé")
     return commandeID
 
 
@@ -224,40 +206,73 @@ def executecommande():         # Fonction pour exécuter les commandes détecté
 # --------------------------
 #         Main Loop
 # --------------------------
+if config.TEXTMODE:
 
-with sd.RawInputStream(samplerate=SAMPLE_RATE, blocksize=8000, dtype="int16", channels=1, callback=audio_callback):
-    # Joue le son Bonjour.mp3 pour signaler le début du programme
-    playsound("sons\\Bonjour.mp3")
+    print("[red]Mode texte activé. Tapez vos commandes ci-dessous.[/red]")
+    while True:
+        phrase = Prompt.ask("[blue]Vous[/blue]")
+        text = phrase
+        detectcommande()
+        executecommande()
+else:
+    #Choix du modèle
+    ask = Prompt.ask("[bright_yellow]Utiliser le modèle petit (p) ou grand (g) ? (p/g)[/bright_yellow]").lower()
+    if ask == "p":
+        MODEL_PATH = config.SMALL_MODEL_PATH
+        ask = "petit"
+    elif ask == "g":
+        MODEL_PATH = config.BIG_MODEL_PATH
+        ask = "grand"
+    else:
+        print("[bright_red]Choix invalide, utilisation du modèle par défaut ([white]petit[bright_red]).[/bright_red]")
+        MODEL_PATH = "vosk-model-small-fr-0.22"
+        ask = "petit"
 
-    # Commance a verifier les rappels
-    verifier_rappels()
-    try:
-        while True:
-            # Écoute pour détéction
-            phrase = ecouter()
-            if Debug:
-                print("écoute")
+    # Vérification de l'existence du modèle
+    if not os.path.exists(MODEL_PATH):
+        print ("[bright_red]Veuillez télécharger le modèle depuis https://alphacephei.com/vosk/models et le décompresser dans le dossier courant.[/bright_red]")
+        exit(1)
 
-            # Détéction de NAME pour commancer l'utilisation des commandes
-            if config.NAME in phrase:
-                # Active l'utilisation des commandes
-                assistant_actif = True
+    if Debug:
+        print(f"[bright_yellow]Chargement du {ask} modèle ...[/bright_yellow]")
+
+    model = Model(MODEL_PATH)
+    recognizer = KaldiRecognizer(model, SAMPLE_RATE)    #Initialisation du reconnaisseur
+
+    #Mic Loop
+    with sd.RawInputStream(samplerate=SAMPLE_RATE, blocksize=8000, dtype="int16", channels=1, callback=audio_callback):
+        # Joue le son Bonjour.mp3 pour signaler le début du programme
+        playsound("sons\\Bonjour.mp3")
+
+        # Commance a verifier les rappels
+        verifier_rappels()
+        try:
+            while True:
+                # Écoute pour détéction
+                phrase = ecouter()
                 if Debug:
-                    print("Assistant activé")
-                # Joue le son Oui.mp3 pour prévenire que les commandes sont activer
-                playsound("sons\\Oui.mp3")
-                continue
+                    print("écoute")
 
-            if assistant_actif and phrase:
-                # Désactive l'utilisation des commandes pour la prochaine utillisation
-                assistant_actif = False
-                if Debug:
-                    print("Assistant en veille")
+                # Détéction de NAME pour commancer l'utilisation des commandes
+                if config.NAME in phrase:
+                    # Active l'utilisation des commandes
+                    assistant_actif = True
+                    if Debug:
+                        print("Assistant activé")
+                    # Joue le son Oui.mp3 pour prévenire que les commandes sont activer
+                    playsound("sons\\Oui.mp3")
+                    continue
 
-                # Détècte et execute la commande de l'utilisateur
-                detectcommande()
-                executecommande()
+                if assistant_actif and phrase:
+                    # Désactive l'utilisation des commandes pour la prochaine utillisation
+                    assistant_actif = False
+                    if Debug:
+                        print("Assistant en veille")
 
-    except KeyboardInterrupt:
-        # Si L'utilisateur fait Ctrl + C
-        print("Fin du programme demandée par l'utilisateur")
+                    # Détècte et execute la commande de l'utilisateur
+                    detectcommande()
+                    executecommande()
+
+        except KeyboardInterrupt:
+            # Si L'utilisateur fait Ctrl + C
+            print("[bright_red]Fin du programme demandée par l'utilisateur[/bright_red]")

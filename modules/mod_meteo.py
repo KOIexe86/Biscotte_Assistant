@@ -26,18 +26,53 @@ from config import Debug
 # --------------------------
 
 load_dotenv("Key.env")
-API_KEY = os.getenv("API_KEY")
-CITY = "Neuville-de-Poitou"
-URL = f"http://api.openweathermap.org/data/2.5/weather?q={CITY}&appid={API_KEY}&lang=fr"
+API_KEY = os.getenv("OWM_API_KEY")
+FALLBACK_CITY = "Paris"
 
 
 # --------------------------
 #         Fonctions
 # --------------------------
 
+def get_location():
+    """
+    Try to get location via IP geolocation (ip-api.com).
+    Returns dict with keys: city, lat, lon
+    """
+    try:
+        resp = requests.get("http://ip-api.com/json/", timeout=5)
+        data = resp.json()
+        if data.get("status") == "success":
+            return {"city": data.get("city"), "lat": data.get("lat"), "lon": data.get("lon")}
+        if Debug:
+            print("IP geolocation failed:", data)
+    except Exception as e:
+        if Debug:
+            print("Error contacting IP geo service:", e)
+    # Fallback if geolocation fails
+    return {"city": FALLBACK_CITY, "lat": None, "lon": None}
+
+
 def meteo():
     try:
-        response = requests.get(URL)
+        if Debug:
+            print("Récupération de la localisation...")
+
+        loc = get_location()
+        CITY = loc.get("city") or FALLBACK_CITY
+        if loc.get("lat") is not None and loc.get("lon") is not None:
+            URL = f"http://api.openweathermap.org/data/2.5/weather?lat={loc['lat']}&lon={loc['lon']}&appid={API_KEY}&lang=fr"
+        
+            if Debug:
+                print(f"Localisation trouvée: {CITY} (lat: {loc['lat']}, lon: {loc['lon']}) \nUtilisation des coordonnées pour la météo.")
+
+        else:
+            URL = f"http://api.openweathermap.org/data/2.5/weather?q={CITY}&appid={API_KEY}&lang=fr"
+
+            if Debug:
+                print(f"Utilisation du fall back pour la météo: {CITY}")
+
+        response = requests.get(URL, timeout=10)
         data = response.json()
         
         # Récupérer et ajuster l'heure locale

@@ -7,6 +7,8 @@
 
 NAME = "biscotte"
 
+TEXTMODE = False  # Mettre à True pour activer le mode texte (sans reconnaissance vocale)
+
 Debug = True  # Mettre à True pour activer les messages de debug et False pour les désactiver
 
 VOICE="fr-FR-RemyMultilingualNeural" # Voix utilissirée pour la synthèse vocale (edge-tts)
@@ -15,7 +17,7 @@ SMALL_MODEL_PATH = "vosk-model-small-fr-0.22" # Nom du petit model vosk
 
 BIG_MODEL_PATH = "vosk-model-fr-0.22"   # Nom du gros model vosk
 
-
+AI = True #Mettre à True pour activer l'IA (googleAI) ou False pour la désactiver
 
 
 
