@@ -73,22 +73,59 @@ def texte_en_nombre(mot):
 
 async def tts_play(Texte):              # Fonction asynchrone pour la synthèse vocale
     # Suppression du fichier temporaire s'il existe
-    if os.path.exists("temp.mp3"):
-        os.remove("temp.mp3")
-
+    if os.path.exists("temp/temp.mp3"):
+        os.remove("temp/temp.mp3")
+    
+    if Debug:
+        print(f"Synthèse vocale en cours pour le texte: {Texte}")
+    if not Texte or not str(Texte).strip():
+        if Debug:
+            print("Texte vide pour la synthèse vocale, aucun audio généré.")
+        return
     # Envoi du texte à edge-tts
     communicate = edge_tts.Communicate(
         Texte,
-        VOICE
+        VOICE,
     )
+
     # Sauvegarde temporaire et lecture du fichier audio
-    await communicate.save("temp.mp3")
-    playsound("temp.mp3")
-    os.remove("temp.mp3")
+    try:
+        await communicate.save("temp/temp.mp3")
+    except edge_tts.exceptions.NoAudioReceived as e:
+        if Debug:
+            print(f"edge-tts n'a renvoyé aucun audio: {e}")
+        raise
+    except Exception as e:
+        if Debug:
+            print(f"Erreur lors de la génération audio edge-tts: {e}")
+        raise
+
+    try:
+        playsound("temp/temp.mp3")
+    except Exception as e:
+        if Debug:
+            print(f"Erreur lors de la lecture audio: {e}")
+
+    if Debug:
+        print("Lecture terminée, suppression du fichier temporaire.")
+    try:
+        os.remove("temp/temp.mp3")
+    except Exception:
+        pass
 
 
 def dire(Texte):                     # Fonction simplifier pour exécuter la synthèse vocale
     if TEXTMODE:
         print("[green]Biscotte:", Texte)
     else:
-        asyncio.run(tts_play(Texte))
+        try:
+            asyncio.run(tts_play(Texte))
+        except edge_tts.exceptions.NoAudioReceived:
+            # Cas fréquent: voice invalide / paramètres incorrects / problème réseau
+            if Debug:
+                print("Aucun audio reçu depuis edge-tts - affichage en console à la place.")
+            print("[green]Biscotte:", Texte)
+        except Exception as e:
+            if Debug:
+                print(f"Erreur lors de la synthèse vocale: {e}")
+            print("[green]Biscotte:", Texte)

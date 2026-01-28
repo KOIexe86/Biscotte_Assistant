@@ -1,1 +1,4 @@
 Key.env
+__pycache__/
+vosk-model-fr-0.22/
+vosk-model-small-fr-0.22/

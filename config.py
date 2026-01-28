@@ -19,7 +19,9 @@ BIG_MODEL_PATH = "vosk-model-fr-0.22"   # Nom du gros model vosk
 
 AI = True #Mettre à True pour activer l'IA (googleAI) ou False pour la désactiver
 
+AI_MODEL = ["gemini-2.5-flash", "gemini-3-flash-preview"] #Modèle d'IA à utiliser (voir la doc googleAI pour les modèles disponibles)
 
+Vision = True #Mettre à True pour activer l'analyse d'images par l'IA ou False pour la désactiver
 
 
 import json
