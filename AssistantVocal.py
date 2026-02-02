@@ -1,16 +1,16 @@
 # -------------------------------------------------------------- #
 #                                                                #
-# Projet: Assistant Vocal                                        #
+# Project: Voice Assistant                                       #
 #                                                                #
-# Fichier: AssistantVocal.py                                     #
-# Auteur: KOIexe                                                 #
-# Date: 18/09/2025                                               #
+# File: AssistantVocal.py                                        #
+# Author: KOIexe                                                 #
+# Date: 02/02/2026                                               #
 # Python: 3.12.1                                                 #
-# Version: 1.5                                                   #
+# Version: 2.0                                                   #
 #                                                                #
-# Description: Un assistant vocal simple en Python utilisant     #
-#              Vosk pour la reconnaissance vocale et edge-tts    #
-#              pour la synthèse vocale.                          #
+# Description: A simple voice assistant in Python using          #
+#              Vosk for speech recognition and edge-tts for      #
+#              speech synthesis.                                 #
 #                                                                #
 # -------------------------------------------------------------- #
 
@@ -36,28 +36,29 @@ from rich.prompt import Prompt
 # --------------------------
 
 import config
-from modules.mod_utils import dire
-from modules.mod_ouvrir_web import ouvrir_web
-from modules.mod_meteo import meteo
-from modules.mod_ouvrir_prog import ouvrir_prog
+from modules.mod_utils import say
+from modules.mod_ouvrir_web import Open_website
+from modules.mod_meteo import get_weather
+from modules.mod_ouvrir_prog import Open_prog
 from modules.mod_web_search import web_search
-from modules.mod_heure import get_heure, ajout_rappel, verifier_rappels
+from modules.mod_heure import get_time
 from modules.mod_status import status
 from modules.mod_googleAI import askAI
 
 
 # --------------------------
-#        Constantes
+#        Constants
 # --------------------------
 
 Debug = config.Debug
 
+LANGUAGE = config.LANGUAGE
 FFMPEG_PATH = ffmpeg.get_ffmpeg_exe()
 MODEL_PATH = ""
 
 SAMPLE_RATE = 16000
 
-q = queue.Queue()
+q = queue.Queue()  # Queue used to pass raw audio frames from callback to recognizer
 
 
 # --------------------------
@@ -72,207 +73,249 @@ commandeID = -1
 
 
 # --------------------------
-#    Verifications FFMPEG
+#    FFMPEG checks
 # --------------------------
+# Verify ffmpeg executable presence used by edge-tts / media handling
 
 if not os.path.exists(FFMPEG_PATH):
-    print("FFmpeg introuvable via imageio-ffmpeg")
+    print("FFmpeg not found using imageio-ffmpeg")
 else:
     if Debug:
-        print(f"FFmpeg trouvé: {FFMPEG_PATH}")
+        print(f"FFmpeg found: {FFMPEG_PATH}")
 
 
 # --------------------------
-#         Commandes
+#         Commands
 # --------------------------
+# List of trigger words / command keywords recognized by the assistant
 
-list_commande = ["stop", "ouvre", "lance", "cherche", "chercher", "heure", "pile", "météo", "statuts", "rappel", "non",]
+list_commande_fr = ["stop", "ouvre", "lance", "cherche", "chercher", "heure", "pile", "météo", "statuts", "non",]
+list_commande_en = ["stop", "open", "launch", "search", "search", "time", "tails", "weather", "status", "no",]
 
 
 # --------------------------
-#         Fonctions
+#         Functions
 # --------------------------
-
-def audio_callback(indata, frames, time, status):   # Fonction de rappel pour capturer l'audio
+def audio_callback(indata, frames, time, status):   # Callback function to capture audio frames from the microphone
     if status:
         print(status)
     q.put(bytes(indata))
 
 
-def ecouter():                     # Fonction pour écouter et reconnaître la parole
+def ecouter():                     # Listen function: pop audio from queue and run recognizer
     global text
 
     try:
         data = q.get(timeout=2)
     except queue.Empty:
-        print("Pas de signale du micro")
+        print("No audio input detected")
         return ""
 
     if recognizer.AcceptWaveform(data):
         result = recognizer.Result()
         text = json.loads(result)["text"]
         if Debug and text:
-            print("Reconnu:", text)
+            print("Recognized:", text)
         return text
     return ""
 
 
-def detectcommande():               # Fonction pour détecter les commandes dans le texte reconnu
+def detectcommande():               # Detect command: search for command keywords in the recognized text
     global commandeID, assistant_actif
 
     commandeID = -1
 
-    # Diviser le texte en mots
+    # Split recognized text into words for keyword matching
     text_diviser = text.split()
+    if LANGUAGE == "en":
+        list_commande = list_commande_en
+    else:
+        list_commande = list_commande_fr
+    
     for i in list_commande:
         if i in text_diviser:
-            # Trouver l'ID de la commande
+            # Find command ID from the keyword list
             commandeID = list_commande.index(i)
             if Debug:
-                print(f'Commande détécter: "{i}" son ID est {commandeID}')
+                print(f'Command detected: "{i}" the ID is {commandeID}')
+
     if commandeID == -1:
         if config.AI:
-            # Utiliser l'IA pour répondre si aucune commande n'est trouvée
+            # Use AI to respond when no command keyword is found
             askAI(text)
+
         else:
-             # Joue le son Pas_compris.mp3 pour signaler que la commande n'a pas été comprise
-            playsound("sons\\Pas_compris.mp3")
+             # Play 'not understood' sound to indicate no command detected
+            if LANGUAGE == "en":
+                playsound("sons\\en\\Not_understood.mp3")
+            else:
+                playsound("sons\\fr\\Pas_compris.mp3")
+            
             assistant_actif = True
             if Debug:
-                print(f"Aucune commande trouvé dans {text}, assistant réactivé")
+                print(f"No command found in '{text}', assistant reactivated")
     return commandeID
 
 
-def executecommande():         # Fonction pour exécuter les commandes détectées
+def executecommande():         # Execute the command identified by detectcommande()
     global text, stop, assistant_actif
 
-    if commandeID == 0:       # Commande "stop"
-        if stop == False:     # Première demande d'arrêt
+    if commandeID == 0:       # "stop" command
+        if stop == False:     # First stop request (ask for confirmation)
             stop = True
             assistant_actif = True
-            dire("Etes-vous sur de vouloir arrêter ? Pour confirmer dites 'stop oui', pour annuler dites 'stop'")
-            if Debug:
-                print("Arrêt demandé \nAssistant réactivé")
-
-        else:   # Confirmation d'arrêt
-            if "oui" in text: 
-                # Confirmation de l'arrêt
-
-                print("Arret du programe")
-                playsound("sons\\Au_revoir.mp3")
-                # Stoppe le programme
-                exit()
-
+            if LANGUAGE == "en":
+                say("Are you sure you want to stop? To confirm say 'stop yes', to cancel say 'no'")
             else:
-                # Annulation de l'arrêt
-                
-                stop = False
-                dire("Annulation de l'arrêt")
-                if Debug:
-                    print("Arrêt annulé")
+                say("Etes-vous sur de vouloir arrêter ? Pour confirmer dites 'stop oui', pour annuler dites 'stop'")
 
-    elif commandeID == 1:      # Commande "ouvre"
-        ouvrir_web(text)
+            if Debug:
+                print("Stop requested \nAssistant reactivated for confirmation")
+
+        else:   # Stop confirmation handling
+            if "oui" or "yes" in text: 
+                # Confirm and exit program
+                print("Stopping the assistant as requested by the user.")
+                if LANGUAGE == "en":
+                    playsound("sons\\en\\Goodbye.mp3")
+                else:
+                    playsound("sons\\fr\\Au_revoir.mp3")
+                exit()
+            else:
+                # Cancel stop request
+                stop = False
+                if LANGUAGE == "en":
+                    say("Stop cancelled")
+                else:
+                    say("Annulation de l'arrêt")
+
+                if Debug:
+                    print("Stop cancelled")
+
+    elif commandeID == 1:      # "ouvre" (open web)
+        Open_website(text)
 
     elif commandeID == 2:       # Commande "lance"
-        ouvrir_prog(text)
+        Open_prog(text)
 
     elif commandeID == 3 or commandeID == 4:       # Commande "cherche"
         web_search(text)
 
     elif commandeID == 5:       # Commande "heure"
-        get_heure()
+        get_time()
 
     elif commandeID == 6:       # Commande "pile ou face"
         resultat = random.choice(["pile", "face"])
-        dire(f"C'est {resultat}")
+        if LANGUAGE == "en":
+            if resultat == "face":
+                resultat = "heads"
+            else:
+                resultat = "tails"
+            say(f"It's {resultat}")
+        else:
+            say(f"C'est {resultat}")
         if Debug:
-            print(f"Résultat du pile ou face: {resultat}")
+            print(f"Resault of the heads or tails: {resultat}")
 
     elif commandeID == 7:       # Commande "météo"
-        meteo()
+        get_weather()
 
-    elif commandeID == 8:
+    elif commandeID == 8:       # Commande "statuts"
         status()
-    
-    elif commandeID == 9:
-        ajout_rappel(text)
 
-    elif commandeID == 10:       # Commande "non"
+    elif commandeID == 9:      # "non" command
         if Debug:
-            print("Assistant mis en veille")
+            print("Assistant asleep")
 
 
 # --------------------------
 #         Main Loop
 # --------------------------
+# If TEXTMODE is enabled, read commands from keyboard; otherwise use microphone loop
 if config.TEXTMODE:
 
-    print("[red]Mode texte activé. Tapez vos commandes ci-dessous.[/red]")
+    print("[red]Text mode activated. Write your commands here.[/red]")
     while True:
-        phrase = Prompt.ask("[blue]Vous[/blue]")
+        phrase = Prompt.ask("[blue]You[/blue]")
         text = phrase
         detectcommande()
         executecommande()
 else:
-    #Choix du modèle
-    ask = Prompt.ask("[bright_yellow]Utiliser le modèle petit (p) ou grand (g) ? (p/g)[/bright_yellow]").lower()
-    if ask == "p":
-        MODEL_PATH = config.SMALL_MODEL_PATH
-        ask = "petit"
-    elif ask == "g":
-        MODEL_PATH = config.BIG_MODEL_PATH
-        ask = "grand"
-    else:
-        print("[bright_red]Choix invalide, utilisation du modèle par défaut ([white]petit[bright_red]).[/bright_red]")
-        MODEL_PATH = "vosk-model-small-fr-0.22"
-        ask = "petit"
+    # Select models based on assistant language setting
+    if LANGUAGE == "fr":
+        SMALL_MODEL_PATH = config.FR_SMALL_MODEL_PATH
+        BIG_MODEL_PATH = config.FR_BIG_MODEL_PATH 
 
-    # Vérification de l'existence du modèle
+    elif LANGUAGE == "en":
+        SMALL_MODEL_PATH = config.EN_SMALL_MODEL_PATH
+        BIG_MODEL_PATH = config.EN_BIG_MODEL_PATH
+    else:
+        print("[bright_red]Language not supported, default models used (french).[/bright_red]")
+        SMALL_MODEL_PATH = config.FR_SMALL_MODEL_PATH
+        BIG_MODEL_PATH = config.FR_BIG_MODEL_PATH
+    
+    # Model selection prompt (small or big)
+    ask = Prompt.ask("[bright_yellow]What model size ? small (s) or big (b) (default: small)[/bright_yellow]").lower()
+    if ask == "s" or ask == "S":
+        MODEL_PATH = SMALL_MODEL_PATH
+        ask = "small"
+    elif ask == "b" or ask == "B":
+        MODEL_PATH = BIG_MODEL_PATH
+        ask = "big"
+    else:
+        print("[bright_red]Invalid choice, default model used ([white]small[bright_red]).[/bright_red]")
+        MODEL_PATH = SMALL_MODEL_PATH
+        ask = "small"
+    
+    # Validate model exists on disk before loading
     if not os.path.exists(MODEL_PATH):
-        print ("[bright_red]Veuillez télécharger le modèle depuis https://alphacephei.com/vosk/models et le décompresser dans le dossier courant.[/bright_red]")
+        print ("[bright_red]The model is not in the active directory \nPlease download the model from[white] https://alphacephei.com/vosk/models [bright_red]and decompresse it in the active folder.[/bright_red]")
         exit(1)
 
     if Debug:
-        print(f"[bright_yellow]Chargement du {ask} modèle ...[/bright_yellow]")
+        print(f"[bright_yellow]Loading of the {ask} model...[/bright_yellow]")
 
     model = Model(MODEL_PATH)
-    recognizer = KaldiRecognizer(model, SAMPLE_RATE)    #Initialisation du reconnaisseur
+    recognizer = KaldiRecognizer(model, SAMPLE_RATE)    # Initialize the speech recognizer
 
-    #Mic Loop
+    # Microphone loop: open raw input stream and process audio continuously
     with sd.RawInputStream(samplerate=SAMPLE_RATE, blocksize=8000, dtype="int16", channels=1, callback=audio_callback):
-        # Joue le son Bonjour.mp3 pour signaler le début du programme
-        playsound("sons\\Bonjour.mp3")
+        # Play greeting sound to signal start
+        if LANGUAGE == "en":
+            playsound("sons\\en\\Hello.mp3")
+        else:
+            playsound("sons\\fr\\Bonjour.mp3")
 
-        # Commance a verifier les rappels
-        verifier_rappels()
+
         try:
             while True:
-                # Écoute pour détéction
+                # Listen for speech and process recognizer results
                 phrase = ecouter()
                 if Debug:
                     print("écoute")
 
-                # Détéction de NAME pour commancer l'utilisation des commandes
+                # Detect wake name to enable command processing
                 if config.NAME in phrase:
-                    # Active l'utilisation des commandes
                     assistant_actif = True
                     if Debug:
-                        print("Assistant activé")
-                    # Joue le son Oui.mp3 pour prévenire que les commandes sont activer
-                    playsound("sons\\Oui.mp3")
+                        print("Assistant activated")
+                    # Play acknowledgement sound to indicate assistant activated
+                    if LANGUAGE == "en":
+                        playsound("sons\\en\\Yes.mp3")
+                    else:
+                        playsound("sons\\fr\\Oui.mp3")
                     continue
 
                 if assistant_actif and phrase:
-                    # Désactive l'utilisation des commandes pour la prochaine utillisation
+                    # After one command, put assistant back to sleep until wake name heard again
                     assistant_actif = False
                     if Debug:
-                        print("Assistant en veille")
+                        print("Assistant asleep")
 
-                    # Détècte et execute la commande de l'utilisateur
+                    # Detect and execute the user's command
                     detectcommande()
                     executecommande()
 
         except KeyboardInterrupt:
-            # Si L'utilisateur fait Ctrl + C
-            print("[bright_red]Fin du programme demandée par l'utilisateur[/bright_red]")
+            # User-requested program termination (Ctrl+C)
+            print("[bright_red]User-requested program termination[/bright_red]")

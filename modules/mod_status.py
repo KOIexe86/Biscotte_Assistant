@@ -1,8 +1,8 @@
 # ---------------------------------------------------------- #
 #                  Status module by KOIexe                   #
 # ---------------------------------------------------------- #
-#  Description: Fournit le status actuel de la machine       #
-#  Fonction disponible: status()                             #
+#  Description: Provides the current machine status          #
+#  Available function: status()                              #
 # ---------------------------------------------------------- #
 
 
@@ -12,14 +12,14 @@
 
 import time
 import psutil
-from modules.mod_utils import dire
-from config import Debug
+from modules.mod_utils import say
+from config import Debug, LANGUAGE
 
 
 # --------------------------
-#         Fonctions
+#         Functions
 # --------------------------
-
+# Utility to measure network speed over a short interval (returns upload, download in KB/s)
 def get_network_speed(interval=1):
     net1 = psutil.net_io_counters()
     time.sleep(interval)
@@ -28,26 +28,31 @@ def get_network_speed(interval=1):
     bytes_sent = net2.bytes_sent - net1.bytes_sent
     bytes_recv = net2.bytes_recv - net1.bytes_recv
 
-    # Convertir en kb/s
+    # Convert to kb/s
     upload_speed = bytes_sent / interval / 1024
     download_speed = bytes_recv / interval / 1024
 
     return round(upload_speed, 2), round(download_speed, 2)
 
+# Gather CPU, memory and network information and speak or print the results
 def status():
-    # Utilisation CPU
+    # CPU usage percentage (sampled over 1 second)
     cpu_usage = psutil.cpu_percent(interval=1)
 
-    # Utilisation mémoire
+    # Memory usage information
     mem = psutil.virtual_memory()
     total, available, mem_percent, used, free = mem
 
-    # Récupère la vitesse de la connextion
+    # Get current connection speed (upload and download)
     up, down = get_network_speed()
 
-    # Dit les informations
+    # Debug output to console if enabled
     if Debug:
-        print(f"CPU: {cpu_usage}% \nMemoire: {mem_percent}% \nInternet: \n  Up: {up}kb/s \n  Down: {down}kb/s")
-    
-    dire(f"Le CPU est à {cpu_usage}% d'utillisation et la mémoire à {mem_percent}%. La vitesse d'internet est de: {up}kilobit seconde d'upload et {down}kilobit seconde de download")
+        print(f"CPU: {cpu_usage}% \nMemory: {mem_percent}% \nInternet: \n  Up: {up}kb/s \n  Down: {down}kb/s")
+
+    # Speak the gathered information in the configured language
+    if LANGUAGE == "en":
+        say(f"The CPU is at {cpu_usage}% usage and the memory at {mem_percent}%. The internet speed is: {up} kilobit per second upload and {down} kilobit per second download")
+    else:
+        say(f"Le CPU est à {cpu_usage}% d'utillisation et la mémoire à {mem_percent}%. La vitesse d'internet est de: {up} kilobit seconde d'upload et {down} kilobit seconde de download")
 

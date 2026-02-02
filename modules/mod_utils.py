@@ -1,9 +1,9 @@
 # ---------------------------------------------------------- #
 #                    TTS module by KOIexe                    #
 # ---------------------------------------------------------- #
-#  Description: Fournit les fonctions pour le tts comme      #
-#               tts_play ou dire                             #
-#  Fonction disponible: tts_play(Text), dire(Text)           #
+#  Description: Provides functions for TTS such as           #
+#               tts_play and dire                            #
+#  Available functions: tts_play(Text), dire(Text)           #
 # ---------------------------------------------------------- #
 
 
@@ -16,116 +16,69 @@ import edge_tts
 from playsound3 import playsound
 import os
 from config import VOICE, Debug, TEXTMODE
-import threading
-from win11toast import toast
 from rich import print
-from rich.prompt import Prompt
 
 
 # --------------------------
-#         Variables
+#         Functions
 # --------------------------
 
-mots_nombres = {
-    "zéro": 0,
-    "un": 1,
-    "une": 1,
-    "deux": 2,
-    "trois": 3,
-    "quatre": 4,
-    "cinq": 5,
-    "six": 6,
-    "sept": 7,
-    "huit": 8,
-    "neuf": 9,
-    "dix": 10,
-    "onze": 11,
-    "douze": 12,
-    "treize": 13,
-    "quatorze": 14,
-    "quinze": 15,
-    "seize": 16,
-    "dix-sept": 17,
-    "dix huit": 18,
-    "dix-neuf": 19,
-    "vingt": 20,
-    "trente": 30,
-    "quarante": 40,
-    "cinquante": 50,
-    "soixante": 60
-}
-
-
-# --------------------------
-#         Fonctions
-# --------------------------
-
-def texte_en_nombre(mot):
-    try:
-        mot = mot.lower()
-        if mot in mots_nombres:
-            return mots_nombres[mot]
-        return None
-    except Exception as e:
-        if Debug:
-            print(f"Erreur lors de la traduction des mots en nombre: {e}")
-
-
-async def tts_play(Texte):              # Fonction asynchrone pour la synthèse vocale
-    # Suppression du fichier temporaire s'il existe
+# Asynchronous function for text-to-speech synthesis
+async def tts_play(Texte):
+    # Remove temporary file if it exists
     if os.path.exists("temp/temp.mp3"):
         os.remove("temp/temp.mp3")
     
     if Debug:
-        print(f"Synthèse vocale en cours pour le texte: {Texte}")
+        print(f"Text-to-speech in progress for the text: {Texte}")
     if not Texte or not str(Texte).strip():
         if Debug:
-            print("Texte vide pour la synthèse vocale, aucun audio généré.")
+            print("Empty text provided to tts_play, skipping synthesis.")
         return
-    # Envoi du texte à edge-tts
+    # Send the text to edge-tts
     communicate = edge_tts.Communicate(
         Texte,
         VOICE,
     )
 
-    # Sauvegarde temporaire et lecture du fichier audio
+    # Save temporary audio file and play it
     try:
         await communicate.save("temp/temp.mp3")
     except edge_tts.exceptions.NoAudioReceived as e:
         if Debug:
-            print(f"edge-tts n'a renvoyé aucun audio: {e}")
+            print(f"No audio recived by edge-tts: {e}")
         raise
     except Exception as e:
         if Debug:
-            print(f"Erreur lors de la génération audio edge-tts: {e}")
+            print(f"Error in the audio generation by edge-tts: {e}")
         raise
 
     try:
         playsound("temp/temp.mp3")
     except Exception as e:
         if Debug:
-            print(f"Erreur lors de la lecture audio: {e}")
+            print(f"Error while playing the audio: {e}")
 
     if Debug:
-        print("Lecture terminée, suppression du fichier temporaire.")
+        print("Audio playback completed, removing temporary file.")
     try:
         os.remove("temp/temp.mp3")
     except Exception:
         pass
 
 
-def dire(Texte):                     # Fonction simplifier pour exécuter la synthèse vocale
+# Simplified wrapper to trigger speech synthesis (prints text when TEXTMODE enabled)
+def say(Texte):
     if TEXTMODE:
         print("[green]Biscotte:", Texte)
     else:
         try:
             asyncio.run(tts_play(Texte))
         except edge_tts.exceptions.NoAudioReceived:
-            # Cas fréquent: voice invalide / paramètres incorrects / problème réseau
             if Debug:
-                print("Aucun audio reçu depuis edge-tts - affichage en console à la place.")
+                print("No audio received from edge-tts, please check voice settings and network connection. Displaying text in consol instead.")
             print("[green]Biscotte:", Texte)
         except Exception as e:
             if Debug:
-                print(f"Erreur lors de la synthèse vocale: {e}")
+                print(f"Error during speech synthesis: {e} \nDisplaying text in consol instead.")
             print("[green]Biscotte:", Texte)

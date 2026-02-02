@@ -1,10 +1,10 @@
 # ---------------------------------------------------------- #
-#               Open programe module by KOIexe               #
+#               Open program module by KOIexe                #
 # ---------------------------------------------------------- #
-#  Description: Fournit la fonction pour ouvrir des          #
-#               programes.                                   #
-#  Fonctionne avec dic_programme dans dictionnaire.py.       #
-#  Fonction disponible: ouvrir_prog(text)                    #
+#  Description: Provides the function to open programs.      #
+#               Works with dic_programme defined             #
+#               in progreammes.json                          #
+#  Available function: ouvrir_prog(text)                     #
 # ---------------------------------------------------------- #
 
 
@@ -12,37 +12,43 @@
 #          Imports
 # --------------------------
 
-from modules.mod_utils import dire
+from modules.mod_utils import say
 import os
-from config import Debug
+from config import Debug, LANGUAGE
 from config import dic_programme
 
 
 # --------------------------
-#         Fonctions
+#         Functions
 # --------------------------
 
-def ouvrir_prog(text):
+def Open_prog(text):
     for i in dic_programme.keys():
-            # Chercher le programme dans le texte
+            # Search for the program name substring in the provided text
             programme = text.find(i)
 
             if Debug:
-                print(f"Recherche du programme: {i} dans le texte")
+                print(f"Searching program: {i} in texte")
             if programme >= 0:
-                # Récupérer le chemin du programme
+                # Get the actual program path from the dictionary
                 programme = dic_programme.get(i)
                 try:
-                    # Lancer le programme
+                    # Launch the program using the OS
                     os.startfile(programme)
-                    dire(f"Lancement de {i}")
+                    if LANGUAGE == "en":
+                        say(f"Launching {i}")
+                    else:
+                        say(f"Lancement de {i}")
 
                     if Debug:
-                        print(f"Lancement de {programme}")
+                        print(f"Launching {programme}")
                 except Exception as e:
-                    # Si une erreur survient
-                    dire(f"Je n'ai pas pu lancer {i} \nproblème rencontré: {e}")
+                    # Handle any exception raised while trying to start the file
+                    if LANGUAGE == "en":
+                        say(f"I couldn't launch {i} \nproblem encountered: {e}")
+                    else:
+                        say(f"Je n'ai pas pu lancer {i} \nproblème rencontré: {e}")
 
                     if Debug:
-                        print(f"Impossible de lancer {programme}: {e}")
+                        print(f"Lunching {programme} was not possible, error: {e}")
                 break

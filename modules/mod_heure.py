@@ -1,9 +1,8 @@
 # ---------------------------------------------------------- #
-#                   Heure module by KOIexe                   #
+#                    Time module by KOIexe                   #
 # ---------------------------------------------------------- #
-#  Description: Fournit les fonction en rapport avec l'heure #
-#  Fonction disponible: heure(), ajout_rappel(text),         #
-#                       verifier_rappels()                   #
+#  Description: Provides functions related to time           #
+#  Available functions: get_time()                           #
 # ---------------------------------------------------------- #
 
 
@@ -11,109 +10,27 @@
 #          Imports
 # --------------------------
 
-from config import Debug
-from modules.mod_utils import dire, texte_en_nombre
+from config import Debug, LANGUAGE
+from modules.mod_utils import say
 import datetime
-import time
-import threading
-
 
 # --------------------------
-#         Variables
+#         Functions
 # --------------------------
 
-list_rappels = []
+def get_time():
 
-
-# --------------------------
-#         Fonctions
-# --------------------------
-
-def get_heure():
-
-    now = datetime.now()
+    # Get current local time
+    now = datetime.datetime.now()
+    # Format hour:minute
     heure = now.strftime("%H:%M")
-    dire(f"Il est {heure}")
 
+    # Speak in selected language
+    if LANGUAGE == "en":
+        say(f"It's {heure}")
+    else:
+        say(f"Il est {heure}")
+
+    # Debug output if enabled
     if Debug:
-        print(f"Heure actuelle: {heure}")
-
-
-def Formatage(text):
-    brute = text.split("rappel ",1)[1]      # Supprimer le début de la phrase et rappel 
-    mots = brute.split()
-    
-    if "dans" in mots:
-        try:
-            idx = mots.index("dans")
-            mot_nombre = mots[idx + 1]
-            minutes = texte_en_nombre(mot_nombre)
-
-            if minutes is None:
-                dire("Je n'ai pas compris le nombre de minutes.")
-            else:
-                contenu = " ".join(mots[0:idx])  # texte avant "dans"
-                print(contenu)
-                return contenu, minutes
-
-        except Exception as e:
-            dire("Je n'ai pas compris le rappel.")
-            if Debug:
-                print(f"Erreur ajout rappel: {e}")
-
-
-def ajout_rappel(text):
-    try:
-        # Formate pour récuperer le contenue et nombre de minutes
-        contenu, minutes = Formatage(text)
-
-        if Debug:
-            print(f"Contenue du rappel: {contenu} \nDans {minutes} minutes")
-
-        # Détermine l'heure du déclanchement du rappel
-        heure = datetime.datetime.now() + datetime.timedelta(minutes=minutes)
-
-        # Ajout du rappel a la list des rappels
-        list_rappels.append({"heure": heure, "nom": contenu})
-
-        # Confirme l'ajoute du rappel
-        dire(f"Rappel ajouté pour {minutes} minutes : {contenu}")
-
-        if Debug:
-            print(f"Ajout du rappel: {contenu}, dans: {minutes}mins soit à: {heure}")
-
-    except Exception as e:
-        dire(f"Impossible d'ajouter le rappel, erreur {e}")
-
-        if Debug:
-            print(f"Impossible d'ajouter le rappel \nErreur: {e}")
-
-
-def verifier_rappels():
-
-    # Boucle qui vérifie si un rappel doit être déclenché
-    def boucle():
-        while True:
-
-            # Récupère l'heure actuel
-            maintenant = datetime.datetime.now()
-
-            # Verifie tout les rappels dans list_rappels
-            for rappel in list_rappels[:]:  # Copie pour éviter les erreurs
-                if maintenant >= rappel["heure"]:
-                    # Dit le rappel
-                    dire(f"Rappel : {rappel['nom']}")
-
-                    # Supprime le rappel
-                    list_rappels.remove(rappel)
-
-                    if Debug:
-                        print(f"Rappel {rappel['nom']} attein et supprimé")
-
-            time.sleep(10)  # Vérifie toutes les 10 secondes
-
-    # Lance la boucle sur un autre thread
-    t = threading.Thread(
-        target=boucle,
-        )
-    t.start()
+        print(f"the time is: {heure}")
