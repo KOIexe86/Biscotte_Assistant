@@ -29,6 +29,8 @@ import imageio_ffmpeg as ffmpeg
 import random
 from rich import print
 from rich.prompt import Prompt
+import threading
+import time
 
 
 # --------------------------
@@ -143,6 +145,7 @@ def detectcommande():               # Detect command: search for command keyword
         if config.AI:
             # Use AI to respond when no command keyword is found
             askAI(text)
+            assistant_actif = True
 
         else:
              # Play 'not understood' sound to indicate no command detected
@@ -285,7 +288,6 @@ else:
             playsound("sons\\en\\Hello.mp3")
         else:
             playsound("sons\\fr\\Bonjour.mp3")
-
 
         try:
             while True:

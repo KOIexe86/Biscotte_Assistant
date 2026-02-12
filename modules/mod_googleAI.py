@@ -28,6 +28,7 @@ first_chat = True
 
 load_dotenv("Key.env")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+MODEL = "gemini-2.5-flash-lite"
 
 if GEMINI_API_KEY:
     client = genai.Client(api_key=GEMINI_API_KEY)
@@ -36,7 +37,7 @@ else:
         print("GEMINI_API_KEY not found in 'Key.env'. Are you sure it's configure correctly?")
     client = None
 
-chat = client.chats.create(model="gemini-2.5-flash")
+chat = client.chats.create(model=MODEL)
 
 PROMPT_FR = """Tu es Biscotte, un assistant personnel intelligent intégré à un programme local. 
 Tu réponds toujours de manière claire, naturelle et concise - en une ou deux phrases maximum. 
