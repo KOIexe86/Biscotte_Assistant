@@ -13,8 +13,7 @@
 
 from modules.mod_utils import say
 import webbrowser as wb
-from config import Debug, LANGUAGE
-from config import dic_site
+from config import Debug, LANGUAGE, dic_site
 
 
 # --------------------------

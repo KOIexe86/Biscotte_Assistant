@@ -14,8 +14,7 @@
 
 from modules.mod_utils import say
 import os
-from config import Debug, LANGUAGE
-from config import dic_programme
+from config import Debug, LANGUAGE, dic_programme
 
 
 # --------------------------

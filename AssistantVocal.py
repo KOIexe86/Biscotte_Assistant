@@ -29,8 +29,6 @@ import imageio_ffmpeg as ffmpeg
 import random
 from rich import print
 from rich.prompt import Prompt
-import threading
-import time
 
 
 # --------------------------
