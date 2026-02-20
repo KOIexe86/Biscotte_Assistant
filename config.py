@@ -58,7 +58,7 @@ Vision = True # Set to True to enable AI image analysis or False to disable it
 
 
 # --------------------------
-#    Program & Site Lists
+# Program, Site & Text Lists
 # --------------------------
 
 # Load the mapping of program names and websites used by the assistant.
@@ -75,3 +75,9 @@ try:
         dic_site = json.load(f)
 except Exception as e:
         print(f"Error while trying to open sites.json \nError: {e}")
+
+try:
+    with open("texts.json", encoding="utf-8") as f:
+        sounds = json.load(f)
+except Exception as e:
+    print(f"Error while trying to open json \nError: {e}")

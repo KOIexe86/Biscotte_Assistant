@@ -1,0 +1,218 @@
+{
+    "Hello": {
+        "fr": [
+            {
+                "Name": "Bonjour",
+                "File": "Bonjour.mp3",
+                "Content":"Bonjour !"
+            },
+            {
+                "Name": "Salut",
+                "File": "Salut.mp3",
+                "Content":"Salut !"
+            },
+            {
+                "Name": "Comment",
+                "File": "Comment.mp3",
+                "Content":"Comment t'alles-vous ?"
+            },
+            {
+                "Name": "Bien",
+                "File": "Bien.mp3",
+                "Content":"Bien l'bonjour !"
+            }
+        ],
+
+        "en": [
+            {
+                "Name": "Hello",
+                "File": "Hello.mp3",
+                "Content":"Hello !"
+            },
+            {
+                "Name": "Hi",
+                "File": "Hi.mp3",
+                "Content":"Hi !"
+            },
+            {
+                "Name": "How are you ?",
+                "File": "How_are_you.mp3",
+                "Content":"How are you ?"
+            },
+            {
+                "Name": "Good day",
+                "File": "Good_day.mp3",
+                "Content":"Good day !"
+            },
+            {
+                "Name": "Welcome",
+                "File": "Welcome.mp3",
+                "Content":"Welcome !"
+            }
+        ]
+    },
+
+    "Goodbye": {
+        "fr": [
+            {
+                "Name": "Au revoir",
+                "File": "Au_revoir.mp3",
+                "Content":"Au revoir !"
+            },
+            {
+                "Name": "Adieu",
+                "File": "Adieu.mp3",
+                "Content":"Adieu ! Ce fut un honneur de vous servir mon grand maitre !"
+            },
+            {
+                "Name": "Ravie",
+                "File": "Ravie.mp3",
+                "Content":"Ravie de vous avoir connu, je vous adore, vous etes le meilleur, je vous aime !"
+            },
+            {
+                "Name": "Plaisire",
+                "File": "Plaisire.mp3",
+                "Content":"C'était un plaisire !"
+            },
+            {
+                "Name": "A bientôt",
+                "File": "A_bientot.mp3",
+                "Content":"A bientôt !"
+            }
+        ],
+        
+        "en": [
+            {
+                "Name": "Goodbye",
+                "File": "Goodbye.mp3",
+                "Content":"Goodbye !"
+            },
+            {
+                "Name": "Farewell",
+                "File": "Farewell.mp3",
+                "Content":"Farewell ! It was an honor to serve you my great master !"
+            },
+            {
+                "Name": "Nice to meet you",
+                "File": "Nice_to_meet_you.mp3",
+                "Content":"Nice to meet you, I adore you, you are the best, I love you !"
+            },
+            {
+                "Name": "See you later",
+                "File": "See_you_later.mp3",
+                "Content":"See you later !"
+            },
+            {
+                "Name": "Bye",
+                "File": "Bye.mp3",
+                "Content":"Bye !"
+            }
+        ]
+    },
+
+    "Yes": {
+        "fr": [
+            {
+                "Name": "Oui",
+                "File": "Oui.mp3",
+                "Content":"Oui !"
+            },
+            {
+                "Name": "A vous",
+                "File": "A_vous.mp3",
+                "Content":"Je suis a vous !"
+            },
+            {
+                "Name": "Comment",
+                "File": "Comment.mp3",
+                "Content":"Comment je peux vous aidez ?"
+            },
+            {
+                "Name": "Ici",
+                "File": "Ici.mp3",
+                "Content":"Je suis là !"
+            }
+        ],
+
+        "en": [
+            {
+                "Name": "Yes",
+                "File": "Yes.mp3",
+                "Content":"Yes !"
+            },
+            {
+                "Name": "All hears",
+                "File": "All hears.mp3",
+                "Content":"I'm all hears !"
+            },
+            {
+                "Name": "Help",
+                "File": "Help.mp3",
+                "Content":"How can I help you !"
+            },
+            {
+                "Name": "Here",
+                "File": "Here.mp3",
+                "Content":"I'm here !"
+            }
+        ]
+    },
+
+    "Not_understood": {
+        "fr": [
+            {
+                "Name": "Pas compris",
+                "File": "Pas_compris.mp3",
+                "Content":"Je n'ai pas compris !"
+            },
+            {
+                "Name": "Répétez",
+                "File": "Repetez.mp3",
+                "Content":"Pouvez-vous répéter ?"
+            },
+            {
+                "Name": "Comprends pas",
+                "File": "Je_ne_comprends_pas.mp3",
+                "Content":"Je ne comprends pas !"
+            },
+            {
+                "Name": "Quoi ?",
+                "File": "Quoi.mp3",
+                "Content":"Quoi ?"
+            },
+            {
+                "Name": "Excuse ?",
+                "File": "Excuse.mp3",
+                "Content":"Excusez moi ?"
+            }
+        ],
+
+        "en": [
+            {
+                "Name": "Not understood",
+                "File": "Not_understood.mp3",
+                "Content":"I did not understand !"
+            },
+            {
+                "Name": "Repeat",
+                "File": "Repeat.mp3",
+                "Content":"Can you repeat ?"
+            },
+            {
+                "Name": "Don't understand",
+                "File": "Don't_understand.mp3",
+                "Content":"I don't understand !"
+            },
+            {
+                "Name": "What ?",
+                "File": "What.mp3",
+                "Content":"What ?"
+            },
+            {
+                "Name": "Pardon ?",
+                "File": "Pardon.mp3",
+                "Content":"Pardon ?"
+            }
+        ]
+    }
+}

@@ -19,7 +19,6 @@
 #          Imports
 # --------------------------
 
-from playsound3 import playsound
 import os
 import sounddevice as sd
 import queue
@@ -36,7 +35,7 @@ from rich.prompt import Prompt
 # --------------------------
 
 import config
-from modules.mod_utils import say
+from modules.mod_utils import say, play_sound
 from modules.mod_ouvrir_web import Open_website
 from modules.mod_meteo import get_weather
 from modules.mod_ouvrir_prog import Open_prog
@@ -147,10 +146,7 @@ def detectcommande():               # Detect command: search for command keyword
 
         else:
              # Play 'not understood' sound to indicate no command detected
-            if LANGUAGE == "en":
-                playsound("sons\\en\\Not_understood.mp3")
-            else:
-                playsound("sons\\fr\\Pas_compris.mp3")
+            play_sound("Not_understood")
             
             assistant_actif = True
             if Debug:
@@ -177,10 +173,7 @@ def executecommande():         # Execute the command identified by detectcommand
             if "oui" or "yes" in text: 
                 # Confirm and exit program
                 print("Stopping the assistant as requested by the user.")
-                if LANGUAGE == "en":
-                    playsound("sons\\en\\Goodbye.mp3")
-                else:
-                    playsound("sons\\fr\\Au_revoir.mp3")
+                play_sound("Goodbye")
                 exit()
             else:
                 # Cancel stop request
@@ -282,10 +275,7 @@ else:
     # Microphone loop: open raw input stream and process audio continuously
     with sd.RawInputStream(samplerate=SAMPLE_RATE, blocksize=8000, dtype="int16", channels=1, callback=audio_callback):
         # Play greeting sound to signal start
-        if LANGUAGE == "en":
-            playsound("sons\\en\\Hello.mp3")
-        else:
-            playsound("sons\\fr\\Bonjour.mp3")
+        play_sound("Hello")
 
         try:
             while True:
@@ -300,10 +290,7 @@ else:
                     if Debug:
                         print("Assistant activated")
                     # Play acknowledgement sound to indicate assistant activated
-                    if LANGUAGE == "en":
-                        playsound("sons\\en\\Yes.mp3")
-                    else:
-                        playsound("sons\\fr\\Oui.mp3")
+                    play_sound("Yes")
                     continue
 
                 if assistant_actif and phrase:

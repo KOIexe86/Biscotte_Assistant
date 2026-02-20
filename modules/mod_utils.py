@@ -15,8 +15,10 @@ import asyncio
 import edge_tts
 from playsound3 import playsound
 import os
-from config import VOICE, Debug, TEXTMODE
 from rich import print
+import random
+import json
+from config import VOICE, Debug, TEXTMODE, LANGUAGE, sounds
 
 
 # --------------------------
@@ -82,3 +84,25 @@ def say(Texte):
             if Debug:
                 print(f"Error during speech synthesis: {e} \nDisplaying text in consol instead.")
             print("[green]Biscotte:", Texte)
+
+
+def play_sound(Category):
+    try:
+        if Category in sounds and LANGUAGE in sounds[Category]:
+            sound = random.choice(sounds[Category][LANGUAGE])
+            try:
+                path = "sons\\" + Category + "\\" + LANGUAGE + "\\" + sound["File"]
+                if os.path.exists(path):
+                    playsound(path)
+
+                    if Debug:
+                        print(f"Playing sound: {sound['Name']} from file {path} with content: {sound['Content']}")
+            
+            except Exception as e:
+                print(f"Error while trying to play sound {sound} \nError: {e}")
+
+        else:
+            print(f"Category '{Category}' not found in json.")
+
+    except Exception as e:
+        print(f"Error while trying to play category {Category} in json \nError: {e}")
