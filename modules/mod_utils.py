@@ -17,7 +17,6 @@ from playsound3 import playsound
 import os
 from rich import print
 import random
-import json
 from config import VOICE, Debug, TEXTMODE, LANGUAGE, sounds
 
 

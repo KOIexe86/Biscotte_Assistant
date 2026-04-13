@@ -14,7 +14,23 @@ import time
 import psutil
 from modules.mod_utils import say
 from config import Debug, LANGUAGE
+from modules.BaseModule import Modules
 
+
+# --------------------------
+#           Class
+# --------------------------
+
+class mod_status(Modules):
+    def __init__(self):
+        # Define keywords that trigger this module
+        if LANGUAGE == "en":
+            super().__init__(["status"])
+        else:
+            super().__init__(["statut", "statuts", "statue"])
+    
+    def executer(self, text):
+        status()
 
 # --------------------------
 #         Functions

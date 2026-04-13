@@ -36,12 +36,12 @@ from rich.prompt import Prompt
 
 import config
 from modules.mod_utils import say, play_sound
-from modules.mod_ouvrir_web import Open_website
-from modules.mod_meteo import get_weather
-from modules.mod_ouvrir_prog import Open_prog
-from modules.mod_web_search import web_search
-from modules.mod_heure import get_time
-from modules.mod_status import status
+from modules.mod_ouvrir_web import mod_ouvrir_web
+from modules.mod_weather import mod_weather
+from modules.mod_ouvrir_prog import mod_ouvrir_prog
+from modules.mod_web_search import mod_web_search
+from modules.mod_heure import mod_heure
+from modules.mod_status import mod_status
 from modules.mod_googleAI import askAI
 
 
@@ -68,7 +68,6 @@ stop = False
 parler = True
 assistant_actif = False
 text = ""
-commandeID = -1
 
 
 # --------------------------
@@ -86,10 +85,12 @@ else:
 # --------------------------
 #         Commands
 # --------------------------
-# List of trigger words / command keywords recognized by the assistant
+# List of all modules available in the assistant, 
+# each module is a class that inherits from the base Modules class 
+# and implements the executer() method to perform its specific function
+# when triggered by a keyword in the user's command.
 
-list_commande_fr = ["stop", "ouvre", "lance", "cherche", "chercher", "heure", "pile", "météo", "statuts", "non",]
-list_commande_en = ["stop", "open", "launch", "search", "search", "time", "tails", "weather", "status", "no",]
+modules_list = [mod_heure(), mod_ouvrir_web(), mod_weather(), mod_ouvrir_prog(), mod_web_search(), mod_status()]
 
 
 # --------------------------
@@ -120,106 +121,47 @@ def ecouter():                     # Listen function: pop audio from queue and r
 
 
 def detectcommande():               # Detect command: search for command keywords in the recognized text
-    global commandeID, assistant_actif
-
-    commandeID = -1
+    global assistant_actif
 
     # Split recognized text into words for keyword matching
     text_diviser = text.split()
-    if LANGUAGE == "en":
-        list_commande = list_commande_en
+
+    # Check for stop or negative response keywords to immediately stop assistant if detected
+    for i in text_diviser:
+        if "stop" in i:
+            play_sound("Goodbye")
+            if Debug:
+                print("Stop command detected, stopping assistant")
+            exit(0)
+
+        elif "no" in i or "non" in i:
+            if Debug:
+                print("Negative response detected, stopping assistant")
+            return
+
+    # Goes through all modules in modules_list
+    for skill in modules_list:
+        # Verify if the module's keywords match any word in the recognized text
+        if skill.detecte(text_diviser):
+            # We execute the module's command if a match is found
+            skill.executer(text)
+            return
+    if Debug:
+        print("No module detected in the command, checking for AI response")
+
+    if config.AI:
+        # Use AI to respond when no command keyword is found
+        askAI(text)
+        assistant_actif = True
+
     else:
-        list_commande = list_commande_fr
-    
-    for i in list_commande:
-        if i in text_diviser:
-            # Find command ID from the keyword list
-            commandeID = list_commande.index(i)
-            if Debug:
-                print(f'Command detected: "{i}" the ID is {commandeID}')
-
-    if commandeID == -1:
-        if config.AI:
-            # Use AI to respond when no command keyword is found
-            askAI(text)
-            assistant_actif = True
-
-        else:
-             # Play 'not understood' sound to indicate no command detected
-            play_sound("Not_understood")
-            
-            assistant_actif = True
-            if Debug:
-                print(f"No command found in '{text}', assistant reactivated")
-    return commandeID
-
-
-def executecommande():         # Execute the command identified by detectcommande()
-    global text, stop, assistant_actif
-
-    if commandeID == 0:       # "stop" command
-        if stop == False:     # First stop request (ask for confirmation)
-            stop = True
-            assistant_actif = True
-            if LANGUAGE == "en":
-                say("Are you sure you want to stop? To confirm say 'stop yes', to cancel say 'no'")
-            else:
-                say("Etes-vous sur de vouloir arrêter ? Pour confirmer dites 'stop oui', pour annuler dites 'stop'")
-
-            if Debug:
-                print("Stop requested \nAssistant reactivated for confirmation")
-
-        else:   # Stop confirmation handling
-            if "oui" or "yes" in text: 
-                # Confirm and exit program
-                print("Stopping the assistant as requested by the user.")
-                play_sound("Goodbye")
-                exit()
-            else:
-                # Cancel stop request
-                stop = False
-                if LANGUAGE == "en":
-                    say("Stop cancelled")
-                else:
-                    say("Annulation de l'arrêt")
-
-                if Debug:
-                    print("Stop cancelled")
-
-    elif commandeID == 1:      # "ouvre" (open web)
-        Open_website(text)
-
-    elif commandeID == 2:       # Commande "lance"
-        Open_prog(text)
-
-    elif commandeID == 3 or commandeID == 4:       # Commande "cherche"
-        web_search(text)
-
-    elif commandeID == 5:       # Commande "heure"
-        get_time()
-
-    elif commandeID == 6:       # Commande "pile ou face"
-        resultat = random.choice(["pile", "face"])
-        if LANGUAGE == "en":
-            if resultat == "face":
-                resultat = "heads"
-            else:
-                resultat = "tails"
-            say(f"It's {resultat}")
-        else:
-            say(f"C'est {resultat}")
+            # Play 'not understood' sound to indicate no command detected
+        play_sound("Not_understood")
+        
+        assistant_actif = True
         if Debug:
-            print(f"Resault of the heads or tails: {resultat}")
-
-    elif commandeID == 7:       # Commande "météo"
-        get_weather()
-
-    elif commandeID == 8:       # Commande "statuts"
-        status()
-
-    elif commandeID == 9:      # "non" command
-        if Debug:
-            print("Assistant asleep")
+            print(f"No command found in '{text}', assistant reactivated")
+    return
 
 
 # --------------------------
@@ -233,7 +175,6 @@ if config.TEXTMODE:
         phrase = Prompt.ask("[blue]You[/blue]")
         text = phrase
         detectcommande()
-        executecommande()
 else:
     # Select models based on assistant language setting
     if LANGUAGE == "fr":
@@ -301,7 +242,6 @@ else:
 
                     # Detect and execute the user's command
                     detectcommande()
-                    executecommande()
 
         except KeyboardInterrupt:
             # User-requested program termination (Ctrl+C)

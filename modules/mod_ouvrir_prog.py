@@ -15,6 +15,23 @@
 from modules.mod_utils import say
 import os
 from config import Debug, LANGUAGE, dic_programme
+from modules.BaseModule import Modules
+
+
+# --------------------------
+#           Class
+# --------------------------
+
+class mod_ouvrir_prog(Modules):
+    def __init__(self):
+        # Define keywords that trigger this module
+        if LANGUAGE == "en":
+            super().__init__(["launch"])
+        else:
+            super().__init__(["lance"])
+    
+    def executer(self, text):
+        Open_prog(text)
 
 
 # --------------------------

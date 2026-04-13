@@ -14,7 +14,23 @@
 from modules.mod_utils import say
 import webbrowser as wb
 from config import Debug, LANGUAGE, dic_site
+from modules.BaseModule import Modules
 
+
+# --------------------------
+#           Class
+# --------------------------
+
+class mod_ouvrir_web(Modules):
+    def __init__(self):
+        # Define keywords that trigger this module
+        if LANGUAGE == "en":
+            super().__init__(["open"])
+        else:
+            super().__init__(["ouvre"])
+    
+    def executer(self, text):
+        Open_website(text)
 
 # --------------------------
 #         Functions

@@ -14,7 +14,23 @@
 import webbrowser as wb
 from config import Debug, LANGUAGE
 from modules.mod_utils import say
+from modules.BaseModule import Modules
 
+
+# --------------------------
+#           Class
+# --------------------------
+
+class mod_web_search(Modules):
+    def __init__(self):
+        # Define keywords that trigger this module
+        if LANGUAGE == "en":
+            super().__init__(["search", "research"])
+        else:
+            super().__init__(["cherche", "chercher", "recherche"])
+    
+    def executer(self, text):
+        web_search(text)
 
 # --------------------------
 #         Variables

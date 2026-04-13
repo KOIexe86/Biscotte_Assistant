@@ -11,8 +11,25 @@
 # --------------------------
 
 from config import Debug, LANGUAGE
+from modules.BaseModule import Modules
 from modules.mod_utils import say
 import datetime
+
+
+# --------------------------
+#           Class
+# --------------------------
+
+class mod_heure(Modules):
+    def __init__(self):
+        # Define keywords that trigger this module
+        if LANGUAGE == "en":
+            super().__init__(["time", "hour"])
+        else:
+            super().__init__(["heure", "temps"])
+    
+    def executer(self, text):
+        get_time()
 
 # --------------------------
 #         Functions

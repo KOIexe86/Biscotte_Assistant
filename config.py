@@ -54,7 +54,7 @@ EN_BIG_MODEL_PATH = "vosk-model-en-us-0.22"   # Name of the large english Vosk m
 # --------------------------
 
 AI = True # Set to True to enable AI (googleAI) or False to disable it
-Vision = True # Set to True to enable AI image analysis or False to disable it
+Vision = False # Set to True to enable AI image analysis or False to disable it (AI must be set to true)
 
 
 # --------------------------
